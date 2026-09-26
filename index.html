@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cherry-PRJ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Unbounded:wght@600;700;800&family=Instrument+Serif:ital@1&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0c; --panel:#141417; --panel2:#1b1b1f; --line:#2c2c31;
+  --text:#eeece6; --dim:#8a8781; --amber:#ef6a3d; --amber-ink:#160c07; --teal:#5fb3a3; --danger:#d96a6a;
+  --rib-a:rgba(239,106,61,.55); --rib-b:rgba(95,179,163,.4);
+  --font-display:'Unbounded',sans-serif; --font-accent:'Instrument Serif',serif; --accent-style:italic;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html[data-theme="created"]{
+  --bg:#0d2830; --panel:rgba(8,26,32,.55); --panel2:rgba(255,255,255,.07); --line:rgba(255,255,255,.16);
+  --text:#eef7f7; --dim:#a9cdd0; --amber:#0e1315; --amber-ink:#eef7f7; --teal:#6fb8c4; --danger:#e08b7a;
+  --rib-a:rgba(10,14,15,.65); --rib-b:rgba(111,184,196,.5);
+  --font-display:'Poppins',sans-serif; --font-accent:'Poppins',sans-serif; --accent-style:normal;
+}
+html[data-theme="created"] body{
+  background:
+    radial-gradient(120% 70% at 15% 0%, rgba(255,255,255,.22), transparent 60%),
+    linear-gradient(200deg, #bfe3e6 0%, #4f8f97 35%, #123842 70%, #081c22 100%);
+  background-attachment:fixed;
+}
+.glass-ridge{
+  background-image:
+    repeating-linear-gradient(100deg, rgba(255,255,255,.05) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(100deg, rgba(0,0,0,.22) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 42px);
+  background-color:var(--panel);
+  background-blend-mode:normal, normal, normal, normal;
+  backdrop-filter:blur(22px) saturate(1.3);
+  -webkit-backdrop-filter:blur(22px) saturate(1.3);
+}
+/* grain + blueprint grid chrome */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:1000; opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box}
+html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; height:100%; background:var(--bg); color:var(--text);
+  font-family:'IBM Plex Sans',system-ui,sans-serif; display:flex; flex-direction:column;
+}
+header{
+  position:relative; display:flex; align-items:center; gap:18px; padding:14px 22px;
+  border-bottom:1px solid var(--line); overflow:hidden;
+  padding-top:calc(14px + env(safe-area-inset-top,0px));
+}
+header::before, header::after{
+  content:'+'; position:absolute; top:10px; color:var(--dim); font-size:14px; opacity:.5; font-family:'IBM Plex Mono',monospace;
+}
+header::before{left:8px} header::after{right:8px}
+.logotype{display:flex; align-items:baseline; gap:2px; margin:0}
+.logotype .serif{font-family:var(--font-accent); font-style:var(--accent-style); font-size:26px; color:var(--text)}
+.logotype .grot{font-family:var(--font-display); font-weight:700; font-size:19px; letter-spacing:-.01em; color:var(--amber)}
+header .sub{color:var(--dim); font-size:11px; font-family:'IBM Plex Mono',monospace; border-left:1px solid var(--line); padding-left:14px; margin-left:2px}
+header .spacer{flex:1}
+.btn{
+  background:transparent; color:var(--text); border:1px solid var(--line);
+  padding:8px 14px; border-radius:999px; font-size:12px; cursor:pointer; font-family:'IBM Plex Mono',monospace;
+  letter-spacing:.02em; transition:border-color .15s, color .15s;
+}
+.btn:hover{border-color:var(--amber); color:var(--amber)}
+.btn.primary{background:var(--amber); color:var(--amber-ink); border-color:var(--amber); font-weight:600}
+.btn.primary:hover{color:var(--amber-ink); opacity:.9}
+.btn.small{padding:5px 10px; font-size:11px}
+main{flex:1; display:flex; min-height:0}
+#layers{
+  width:250px; border-right:1px solid var(--line);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+#layerList{flex:1; overflow-y:auto; padding:8px}
+.layer-item{
+  display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:8px;
+  cursor:pointer; margin-bottom:4px; border:1px solid transparent; font-size:13px;
+}
+.layer-item:hover{background:var(--panel2)}
+.layer-item.active{background:var(--panel2); border-color:var(--amber)}
+.layer-item .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0; box-shadow:0 0 6px currentColor}
+.layer-item .name{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.layer-item .del{color:var(--dim); font-size:14px; opacity:.6; font-family:'IBM Plex Mono',monospace}
+.layer-item .del:hover{color:var(--danger); opacity:1}
+#addLayer{margin:8px; }
+#editor{flex:1; overflow-y:auto; padding:14px; border-top:1px solid var(--line)}
+#editor h3{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); margin:0 0 10px}
+.field{margin-bottom:10px}
+.field label{display:block; font-size:11px; color:var(--dim); margin-bottom:3px; font-family:'IBM Plex Mono',monospace}
+.field input[type=text],.field input[type=number]{
+  width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
+  padding:6px 8px; border-radius:5px; font-size:13px; font-family:'IBM Plex Mono',monospace;
+}
+.field input:focus{outline:none; border-color:var(--teal)}
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.check{display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:10px}
+#canvasWrap{
+  flex:1; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;
+  background:var(--bg);
+}
+#canvasWrap::before{
+  content:''; position:absolute; inset:-15%; z-index:0; pointer-events:none;
+  background:
+    repeating-linear-gradient(100deg, rgba(255,255,255,.05) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(100deg, rgba(0,0,0,.35) 0 1px, transparent 1px 7px),
+    radial-gradient(closest-side at 28% 38%, var(--rib-a), transparent 70%),
+    radial-gradient(closest-side at 78% 68%, var(--rib-b), transparent 70%),
+    var(--bg);
+  background-size:auto, auto, 130% 130%, 130% 130%, auto;
+  filter:blur(34px) saturate(1.25);
+  opacity:.55;
+  animation:ribDrift 22s ease-in-out infinite alternate;
+}
+#canvasWrap::after{
+  content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 46px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 1px, transparent 1px 46px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.6; mix-blend-mode:overlay;
+}
+@keyframes ribDrift{
+  0%{ background-position:0 0, 0 0, 22% 30%, 80% 70%, 0 0; }
+  100%{ background-position:0 0, 0 0, 40% 55%, 60% 45%, 0 0; }
+}
+@media (prefers-reduced-motion: reduce){ #canvasWrap::before{ animation:none; } }
+.frame{ position:relative; z-index:2; }
+#status{ z-index:3; }
+.frame{position:relative; padding:22px}
+.frame::before,.frame::after,.frame i::before,.frame i::after{
+  content:'+'; position:absolute; color:var(--amber); font-family:'IBM Plex Mono',monospace; font-size:15px; opacity:.75;
+}
+.frame::before{top:2px; left:2px} .frame::after{top:2px; right:2px}
+.frame i::before{bottom:2px; left:2px; position:absolute} .frame i::after{bottom:2px; right:2px; position:absolute}
+canvas{border:1px solid var(--line); image-rendering:pixelated; box-shadow:0 20px 60px rgba(0,0,0,.6); display:block; cursor:grab; transition:transform .18s cubic-bezier(.2,.8,.2,1); touch-action:none; will-change:transform}
+canvas.dragging{cursor:grabbing; transition:none}
+#status{
+  position:absolute; bottom:14px; left:14px; font-family:'IBM Plex Mono',monospace;
+  font-size:11px; color:var(--dim); background:rgba(10,10,12,.85); padding:5px 9px; border-radius:20px; border:1px solid var(--line);
+}
+::-webkit-scrollbar{width:8px} ::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px}
+</style>
+</head>
+<body>
+<header class="glass-ridge">
+  <h1 class="logotype"><span class="serif">Cherry</span><span class="grot">-PRJ</span></h1>
+  <div class="sub">island continentalness previewer</div>
+  <div class="spacer"></div>
+  <label class="sub" style="border:none; padding-left:0">Ширина мира</label>
+  <input id="worldWidth" type="number" value="4000" step="500" style="width:80px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:5px;padding:5px 7px;font-family:'IBM Plex Mono',monospace">
+  <button class="btn" id="exportBtn">Копировать JSON</button>
+  <button class="btn primary" id="downloadJsonBtn">↓ continents.json</button>
+  <button class="btn" id="pngBtn">Сохранить PNG</button>
+</header>
+<button id="themeToggle" class="btn small" style="position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:900; border-radius:20px; padding:8px 14px;" title="Сменить тему">◐ Тема</button>
+<main>
+  <div id="layers" class="glass-ridge">
+    <div id="layerList"></div>
+    <button class="btn" id="addLayer">+ Добавить континент</button>
+    <div id="editor"></div>
+  </div>
+  <div id="canvasWrap">
+    <div class="frame"><i></i><canvas id="cv" width="420" height="420"></canvas></div>
+    <div id="status">—</div>
+  </div>
+</main>
+
+<script>
+// ---------- noise (seeded, multi-octave value noise — прототип, не бит-в-бит как в MC) ----------
+function hashStr(s){ s=String(s); let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+function mulberry32(seed){ let a=seed>>>0; return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function makeGradients(rng,n){ const g=[]; for(let i=0;i<n;i++){ const a=rng()*Math.PI*2; g.push([Math.cos(a),Math.sin(a)]); } return g; }
+function fade(t){ return t*t*t*(t*(t*6-15)+10); }
+function lerp(t,a,b){ return a+t*(b-a); }
+function makePerm(rng){ const p=[...Array(256).keys()]; for(let i=255;i>0;i--){ const j=Math.floor(rng()*(i+1)); [p[i],p[j]]=[p[j],p[i]]; } return p.concat(p); }
+function grad2(perm,grads,ix,iz,x,z){ const idx=perm[(ix&255)+perm[iz&255]]%grads.length; const g=grads[idx]; return g[0]*x+g[1]*z; }
+function noise2D(perm,grads,x,z){
+  const x0=Math.floor(x), z0=Math.floor(z), xf=x-x0, zf=z-z0;
+  const n00=grad2(perm,grads,x0,z0,xf,zf), n10=grad2(perm,grads,x0+1,z0,xf-1,zf);
+  const n01=grad2(perm,grads,x0,z0+1,xf,zf-1), n11=grad2(perm,grads,x0+1,z0+1,xf-1,zf-1);
+  const u=fade(xf), v=fade(zf);
+  return lerp(v, lerp(u,n00,n10), lerp(u,n01,n11)) * 1.4142;
+}
+function makeOctaveNoise(seed, firstOctave, amplitudes, scale){
+  const base=mulberry32(hashStr(seed));
+  const octaves=amplitudes.map((amp,i)=>{
+    const r=mulberry32((base()*4294967296)>>>0 ^ (i*2654435761));
+    return { amp, freq:Math.pow(2, firstOctave+i), perm:makePerm(r), grads:makeGradients(r,16) };
+  });
+  const ampSum=amplitudes.reduce((a,b)=>a+Math.abs(b),0)||1;
+  return function(x,z){
+    let v=0;
+    for(const o of octaves){ if(o.amp===0) continue; v += o.amp * noise2D(o.perm,o.grads, x*o.freq, z*o.freq); }
+    return (v/ampSum) * scale;
+  };
+}
+
+// ---------- continent math (hill + noise edge + overlap/sum) ----------
+function hill(x,z){ return Math.pow(2, -(x*x+z*z)); }
+function buildContinent(c){
+  const rot=-c.rotation*Math.PI/180;
+  return {
+    ...c,
+    sin:Math.sin(rot), cos:Math.cos(rot),
+    xSize:1/c.xDivisor, zSize:1/c.zDivisor,
+    sampleNoise: makeOctaveNoise(c.noise.seed, c.noise.firstOctave, c.noise.amplitudes, c.noise.scale)
+  };
+}
+function computeValue(x,z,built){
+  let value=0;
+  for(const c of built){
+    let dx=x-c.centerX, dz=z-c.centerZ;
+    if(c.rotation!==0){ const rx=dx*c.cos-dz*c.sin, rz=dx*c.sin+dz*c.cos; dx=rx; dz=rz; }
+    const sizeMax=Math.max(c.xSize,c.zSize);
+    const n=c.sampleNoise(dx*sizeMax, dz*sizeMax);
+    let v=hill(dx*c.xSize, dz*c.zSize)*2;
+    if(v>0.5) v += Math.cos(v*Math.PI)*n;
+    v *= c.multiplier;
+    value = c.overlap ? Math.max(value,v) : value+v;
+  }
+  return value-1;
+}
+
+// ---------- state ----------
+let state = {
+  worldWidth:4000,
+  continents:[
+    { id:1, name:'Ядро', overlap:true, multiplier:1.0, centerX:0, centerZ:0, xDivisor:900, zDivisor:900, rotation:0,
+      noise:{seed:'12', firstOctave:1, scale:0.45, amplitudes:[1,1,1,1]} },
+    { id:2, name:'Залив A', overlap:false, multiplier:-0.7, centerX:450, centerZ:300, xDivisor:260, zDivisor:260, rotation:20,
+      noise:{seed:'34', firstOctave:1, scale:0.4, amplitudes:[1,1,1]} },
+    { id:3, name:'Залив B', overlap:false, multiplier:-0.7, centerX:-420, centerZ:-350, xDivisor:280, zDivisor:280, rotation:-15,
+      noise:{seed:'56', firstOctave:1, scale:0.4, amplitudes:[1,1,1]} },
+  ],
+  nextId:4, selected:1
+};
+try{ const saved=localStorage.getItem('cherry-prj-state'); if(saved) state=JSON.parse(saved); }catch(e){}
+
+function save(){ try{ localStorage.setItem('cherry-prj-state', JSON.stringify(state)); }catch(e){} }
+
+// ---------- UI: layer list ----------
+const layerList=document.getElementById('layerList');
+const editorEl=document.getElementById('editor');
+function colorForLayer(c){ return c.multiplier>=0 ? '#5fb3a3' : '#d96a6a'; }
+
+function renderLayers(){
+  layerList.innerHTML='';
+  state.continents.forEach(c=>{
+    const el=document.createElement('div');
+    el.className='layer-item'+(c.id===state.selected?' active':'');
+    el.innerHTML=`<span class="dot" style="background:${colorForLayer(c)}"></span><span class="name">${c.name}</span><span class="del" title="Удалить">✕</span>`;
+    el.onclick=(e)=>{ if(e.target.classList.contains('del')){ removeLayer(c.id); return; } state.selected=c.id; renderLayers(); renderEditor(); };
+    layerList.appendChild(el);
+  });
+}
+function removeLayer(id){
+  state.continents=state.continents.filter(c=>c.id!==id);
+  if(state.continents.length && state.selected===id) state.selected=state.continents[0].id;
+  renderLayers(); renderEditor(); scheduleRender(); save();
+}
+document.getElementById('addLayer').onclick=()=>{
+  const id=state.nextId++;
+  state.continents.push({ id, name:'Континент '+id, overlap:false, multiplier:-0.5, centerX:0, centerZ:0, xDivisor:300, zDivisor:300, rotation:0,
+    noise:{seed:String(id*7+3), firstOctave:1, scale:0.4, amplitudes:[1,1,1]} });
+  state.selected=id; renderLayers(); renderEditor(); scheduleRender(); save();
+};
+
+function field(label, value, onChange, type='number', step='any'){
+  const wrap=document.createElement('div'); wrap.className='field';
+  const l=document.createElement('label'); l.textContent=label; wrap.appendChild(l);
+  const inp=document.createElement('input'); inp.type=type; inp.value=value; if(type==='number') inp.step=step;
+  inp.oninput=()=>{ onChange(type==='number'? parseFloat(inp.value||'0') : inp.value); scheduleRender(); save(); };
+  wrap.appendChild(inp);
+  return wrap;
+}
+
+function renderEditor(){
+  editorEl.innerHTML='';
+  const c=state.continents.find(x=>x.id===state.selected);
+  if(!c){ editorEl.innerHTML='<h3>Нет слоя</h3>'; return; }
+  const h=document.createElement('h3'); h.textContent='Параметры слоя'; editorEl.appendChild(h);
+  editorEl.appendChild(field('Название', c.name, v=>{c.name=v; renderLayers();}, 'text'));
+
+  const chk=document.createElement('div'); chk.className='check';
+  chk.innerHTML=`<input type="checkbox" id="ov" ${c.overlap?'checked':''}> <label for="ov" style="font-size:13px;color:var(--text)">overlap (максимум вместо суммы)</label>`;
+  chk.querySelector('input').onchange=(e)=>{ c.overlap=e.target.checked; scheduleRender(); save(); };
+  editorEl.appendChild(chk);
+
+  const row1=document.createElement('div'); row1.className='row2';
+  row1.appendChild(field('center_x', c.centerX, v=>c.centerX=v));
+  row1.appendChild(field('center_z', c.centerZ, v=>c.centerZ=v));
+  editorEl.appendChild(row1);
+
+  const row2=document.createElement('div'); row2.className='row2';
+  row2.appendChild(field('x_divisor (размер)', c.xDivisor, v=>c.xDivisor=Math.max(1,v)));
+  row2.appendChild(field('z_divisor (размер)', c.zDivisor, v=>c.zDivisor=Math.max(1,v)));
+  editorEl.appendChild(row2);
+
+  const row3=document.createElement('div'); row3.className='row2';
+  row3.appendChild(field('rotation_degrees', c.rotation, v=>c.rotation=v));
+  row3.appendChild(field('multiplier', c.multiplier, v=>c.multiplier=v, 'number', '0.05'));
+  editorEl.appendChild(row3);
+
+  const h2=document.createElement('h3'); h2.style.marginTop='16px'; h2.textContent='Шум края'; editorEl.appendChild(h2);
+  editorEl.appendChild(field('seed', c.noise.seed, v=>c.noise.seed=v, 'text'));
+  const row4=document.createElement('div'); row4.className='row2';
+  row4.appendChild(field('first_octave', c.noise.firstOctave, v=>c.noise.firstOctave=Math.round(v)));
+  row4.appendChild(field('scale', c.noise.scale, v=>c.noise.scale=v, 'number', '0.05'));
+  editorEl.appendChild(row4);
+  editorEl.appendChild(field('amplitudes (через запятую)', c.noise.amplitudes.join(','), v=>{ c.noise.amplitudes=v.split(',').map(s=>parseFloat(s.trim())||0); }, 'text'));
+}
+
+// ---------- render canvas ----------
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+const statusEl=document.getElementById('status');
+let renderTimer=null;
+function scheduleRender(){ clearTimeout(renderTimer); renderTimer=setTimeout(doRender, 220); }
+
+function doRender(){
+  const t0=performance.now();
+  const w=cv.width, h=cv.height;
+  const worldWidth=state.worldWidth=parseFloat(document.getElementById('worldWidth').value)||4000;
+  const worldHeight=worldWidth*(h/w);
+  const built=state.continents.map(buildContinent);
+  const img=ctx.createImageData(w,h);
+  const corner=[-worldWidth/2, -worldHeight/2];
+  const scale=worldWidth/w;
+  let min=0,max=0;
+  for(let x=0;x<w;x++){
+    for(let z=0;z<h;z++){
+      const wx=corner[0]+x*scale, wz=corner[1]+z*scale;
+      const v=computeValue(wx,wz,built);
+      if(v<min)min=v; if(v>max)max=v;
+      let r,g,b;
+      if(v<-1.05){ r=196;g=90;b=214; }
+      else if(v<0){ const t=v/-1.0; r=lerp(t,10,20); g=lerp(t,60,45); b=lerp(t,110,80); }
+      else{ const t=Math.min(v,1); r=lerp(t,70,214); g=lerp(t,120,192); b=lerp(t,80,120); }
+      const i=(z*w+x)*4; img.data[i]=r; img.data[i+1]=g; img.data[i+2]=b; img.data[i+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0);
+  statusEl.textContent = `min ${min.toFixed(2)} · max ${max.toFixed(2)} · ${(performance.now()-t0)|0}ms`;
+}
+
+document.getElementById('worldWidth').oninput=()=>{ scheduleRender(); save(); };
+
+document.getElementById('pngBtn').onclick=()=>{
+  const a=document.createElement('a'); a.download='cherry-prj-island.png'; a.href=cv.toDataURL('image/png'); a.click();
+};
+
+function buildEntriesJson(){
+  const entries=state.continents.map(c=>({
+    overlap:c.overlap,
+    noise:{ amplitudes:c.noise.amplitudes, seed:String(c.noise.seed), first_octave:c.noise.firstOctave, scale:c.noise.scale },
+    x_divisor:c.xDivisor, z_divisor:c.zDivisor, rotation_degrees:c.rotation, multiplier:c.multiplier,
+    center_x:c.centerX, center_z:c.centerZ
+  }));
+  return JSON.stringify({entries},null,2);
+}
+
+document.getElementById('exportBtn').onclick=async ()=>{
+  const json=buildEntriesJson();
+  try{ await navigator.clipboard.writeText(json); statusEl.textContent='JSON скопирован в буфер обмена'; }
+  catch(e){ statusEl.textContent='Не удалось скопировать — открой консоль'; console.log(json); }
+};
+
+document.getElementById('downloadJsonBtn').onclick=()=>{
+  const json=buildEntriesJson();
+  const blob=new Blob([json], {type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.download='continents.json'; a.href=url; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  statusEl.textContent='continents.json скачан';
+};
+
+// ---------- theme ----------
+const THEMES=['dark','created'];
+function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); try{localStorage.setItem('cherry-prj-theme', t);}catch(e){} }
+let savedTheme='dark'; try{ savedTheme=localStorage.getItem('cherry-prj-theme')||'dark'; }catch(e){}
+applyTheme(savedTheme);
+document.getElementById('themeToggle').onclick=()=>{
+  const cur=document.documentElement.getAttribute('data-theme')||'dark';
+  applyTheme(THEMES[(THEMES.indexOf(cur)+1)%THEMES.length]);
+};
+
+renderLayers(); renderEditor(); doRender();
+</script>
+</body>
+</html>
